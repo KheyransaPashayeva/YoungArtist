@@ -1,0 +1,36 @@
+databaseChangeLog:
+  - changeSet:
+      id: 1
+      author: Kheyransa
+      changes:
+        - createTable: # Yeni table yaradır
+            tableName: users   # Table-ın adını bildirir
+            columns: # Yeni table-dakı columnların listini təmsil edir
+              - column: # Table-dakı bir sütunu təmsil edir
+                  name: id   # Column-un adıdır
+                  type: BIGINT   # Column-un data type-ı
+                  autoIncrement: true   # Column-un avtomatik artıb-artmayacağını göstərir (daha çox id ilə işlənir)
+                  constraints: # Column üçün bəzi məhdudiyyətləri,məsələn null,unique olub-olmama və s. bildirir
+                    primaryKey: true   # Columnun primary key olub-olmamağını göstərir
+              - column:
+                  name: username
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: false
+                    unique: true
+              - column:
+                  name: email
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: false
+                    unique: true
+              - column:
+                  name: password
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: role
+                  type: VARCHAR(20)
+                  constraints:
+                    nullable: false
