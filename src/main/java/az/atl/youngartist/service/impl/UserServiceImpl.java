@@ -8,11 +8,15 @@ import az.atl.youngartist.mapper.UserMapper;
 import az.atl.youngartist.model.dto.LoginDto;
 import az.atl.youngartist.model.dto.UserDto;
 import az.atl.youngartist.model.enums.Role;
+import az.atl.youngartist.model.reguest.LoginRequest;
 import az.atl.youngartist.model.reguest.UserRequest;
+import az.atl.youngartist.model.reguest.UserRequestDto;
 import az.atl.youngartist.model.response.JwtResponse;
-import az.atl.youngartist.security.jwt.JwtUtil;
+import az.atl.youngartist.service.JwtService;
 import az.atl.youngartist.service.UserService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -24,12 +28,19 @@ public class UserServiceImpl implements UserService {
     private  final BCryptPasswordEncoder encoder;
     private  final UserRepository userRepository;
     private final UserMapper userMapper;
-    private final JwtUtil jwtUtil;
+    private final JwtService jwtService;
+    private final AuthenticationManager authManager;
 
     @Override
     public User findByUserName(String username) {
         return userRepository.findByUsername(username)
                 .orElseThrow(()->new UserNotFoundException("user not found"));
+    }
+
+    @Override
+    public User findByEmail(String email) {
+        return userRepository.findByEmail(email).orElseThrow(()->
+                new UserNotFoundException("user not found"));
     }
 
     @Override
@@ -40,23 +51,24 @@ public class UserServiceImpl implements UserService {
         if (userRepository.findByEmail(userRequest.getEmail()).isPresent()) {
             throw new IllegalArgumentException("Email already exists");
         }
-        User user = User
-                .builder()
+        var user = User.builder()
                 .username(userRequest.getUsername())
-                .password(encoder.encode(userRequest.getPassword()))
                 .email(userRequest.getEmail())
+                .password(encoder.encode(userRequest.getPassword()))
+                .userRole(userRequest.getUserRole())
                 .build();
               if (userRequest.getUserRole() != null) {
                  user.setUserRole(userRequest.getUserRole());
         } else {
             user.setUserRole(Role.USER); // Default to USER if no role is selected
         }
-
         user.setUserRole(Role.USER);
         userRepository.save(user);
-        String jwtToken = jwtUtil.generateToken(user);
-        return new JwtResponse(jwtToken);
 
+        var jwtToken = jwtService.generateToken(user);
+        return JwtResponse.builder()
+                .token(jwtToken)
+                .build();
     }
 
     @Override
@@ -72,16 +84,12 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User login(LoginDto loginDto) {
-        User user = userRepository.findByEmail(loginDto.getEmail())
-                .orElseThrow(() -> new UserNotFoundException("Invalid email or password"));
-
-        // Check if password matches
-        if (!encoder.matches(loginDto.getPassword(), user.getPassword())) {
-            throw new IllegalArgumentException("Invalid email or password");
-        }
-       return  user;
-
+    public JwtResponse login(LoginRequest loginRequest) {
+        authManager.authenticate(
+                new UsernamePasswordAuthenticationToken(loginRequest.getEmail(), loginRequest.getPassword()));
+        var user = userRepository.findByEmail(loginRequest.getEmail()).orElseThrow();
+        var jwtToken = jwtService.generateToken(user);
+        return new JwtResponse(jwtToken);
     }
 
     @Override
@@ -93,15 +101,13 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void updateUser(Long id, UserRequest userRequest) {
+    public void updateUser(Long id, UserRequestDto userRequest) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new UserNotFoundException("User not found"));
-
-        // Update the role
         user.setUsername(userRequest.getUsername());
         user.setEmail(userRequest.getEmail());
         user.setPassword(encoder.encode(userRequest.getPassword()));
-
+        userRepository.save(user);
     }
 
     @Override

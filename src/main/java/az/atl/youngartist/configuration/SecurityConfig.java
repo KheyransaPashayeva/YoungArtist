@@ -1,21 +1,22 @@
 package az.atl.youngartist.configuration;
 
-import az.atl.youngartist.security.jwt.JwtAuthenticationFilter;
-import az.atl.youngartist.service.impl.UserDetailsServiceImpl;
+import az.atl.youngartist.dao.repository.UserRepository;
+import az.atl.youngartist.filter.JwtAuthenticationFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
-import org.springframework.security.config.Customizer;
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfiguration;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
@@ -23,12 +24,19 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @EnableWebSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
-    private final JwtAuthenticationFilter jwtAuthenticationFilter;
-    private  final UserDetailsServiceImpl userDetailsService;
+    private final UserRepository repository;
+
 
     @Bean
     public BCryptPasswordEncoder passwordEncoder(){
         return new BCryptPasswordEncoder();
+    }
+
+    @Bean //load username from database
+    public UserDetailsService userDetailsService() {
+        return username -> repository
+                .findByUsername(username)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found."));
     }
 
     @Bean
@@ -36,38 +44,30 @@ public class SecurityConfig {
         return authenticationConfiguration.getAuthenticationManager();
     }
     @Bean
-    public AuthenticationProvider authenticationProvider(){
+    public AuthenticationProvider authenticationProvider(UserDetailsService userDetailsService,
+                                                         PasswordEncoder passwordEncoder){
         DaoAuthenticationProvider authenticationProvider=new DaoAuthenticationProvider();
         authenticationProvider.setUserDetailsService(userDetailsService);
-        authenticationProvider.setPasswordEncoder(passwordEncoder());
+        authenticationProvider.setPasswordEncoder(passwordEncoder);
         return authenticationProvider;
     }
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain filterChain(HttpSecurity http,
+                                           JwtAuthenticationFilter authenticationFilter,
+                                           AuthenticationProvider authenticationProvider)
+            throws Exception {
+            return http
+                    .authorizeHttpRequests(authorization -> authorization
+                            .requestMatchers("/api/v1/users/**","/v3/api-docs/**","/swagger-ui/**","/api/v1/product/**").permitAll()
+                            .requestMatchers("/api/v1/auth").hasRole("ADMIN")
+                            .anyRequest().authenticated())
+                    .addFilterBefore(authenticationFilter, UsernamePasswordAuthenticationFilter.class)
+                    .authenticationProvider(authenticationProvider)
+                    .sessionManagement(session -> session
+                            .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                            .maximumSessions(1))
+                    .csrf(AbstractHttpConfigurer::disable)
+                    .build();
 
-        AuthenticationManagerBuilder authenticationManagerBuilder = http.getSharedObject(AuthenticationManagerBuilder.class);
-        authenticationManagerBuilder.userDetailsService(userDetailsService).passwordEncoder(passwordEncoder());
-        AuthenticationManager authenticationManager = authenticationManagerBuilder.build();
-
-        http
-                //.headers(x -> x.frameOptions(HeadersConfigurer.))
-                .csrf(AbstractHttpConfigurer::disable)
-                .cors(AbstractHttpConfigurer::disable)
-                .authorizeHttpRequests(authorization -> authorization
-//                       .requestMatchers("/api/auth/**").permitAll()
-                        .requestMatchers("/api/v1/users/register", "/api/v1/users/updateRole","/api/v1/users/**").permitAll()
-                     .requestMatchers("/api/v1/product/**").permitAll()
-                        .requestMatchers("v3/api-docs/**","/swagger-ui/**").permitAll()
-                        .requestMatchers("/admin/**").hasRole("ADMIN")
-                        .requestMatchers("/artist/**").hasRole("ARTIST"))
-                .authorizeHttpRequests(authorize -> authorize
-                        .anyRequest().authenticated()
-                )
-                .authenticationManager(authenticationManager)
-                .authenticationProvider(authenticationProvider())
-                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
-                .formLogin(AbstractHttpConfigurer::disable)
-                .httpBasic(Customizer.withDefaults());
-        return http.build();
     }
 }

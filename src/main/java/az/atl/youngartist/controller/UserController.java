@@ -6,14 +6,18 @@ import az.atl.youngartist.model.dto.LoginDto;
 import az.atl.youngartist.model.dto.ProductDto;
 import az.atl.youngartist.model.dto.UserDto;
 import az.atl.youngartist.model.enums.Role;
+import az.atl.youngartist.model.reguest.LoginRequest;
 import az.atl.youngartist.model.reguest.UserRequest;
+import az.atl.youngartist.model.reguest.UserRequestDto;
 import az.atl.youngartist.model.response.JwtResponse;
-import az.atl.youngartist.security.jwt.JwtUtil;
+import az.atl.youngartist.service.JwtService;
 import az.atl.youngartist.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Set;
@@ -23,9 +27,21 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/users")
 public class UserController {
-    private final JwtUtil jwtUtil;
-private final AuthenticationManager authenticationManager;
+    private final JwtService jwtService;
+   private final AuthenticationManager authenticationManager;
     private final UserService userService;
+
+    @PostMapping("/auth")
+    public String generateToken(@RequestBody LoginRequest request) throws Exception{
+        try {
+            authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(request.getEmail(),request.getPassword())
+            );
+        }catch (Exception exception){
+            throw new Exception("Invalid user email or password");
+        }
+        return jwtService.generateToken(request.getEmail());
+    }
 
     // Find user by username
     @GetMapping("/{username}")
@@ -41,8 +57,7 @@ private final AuthenticationManager authenticationManager;
 
     @PostMapping("/register")
     public ResponseEntity<JwtResponse> createUser(@RequestBody UserRequest userRequest) {
-       JwtResponse jwtResponse= userService.register(userRequest);
-        return ResponseEntity.ok(jwtResponse);
+        return ResponseEntity.ok( userService.register(userRequest));
     }
 
     // Update user role
@@ -54,9 +69,8 @@ private final AuthenticationManager authenticationManager;
 
     // New login endpoint
     @PostMapping("/login")
-    public ResponseEntity<User> loginUser(@RequestBody LoginDto loginDto) {
-        User authenticatedUser = userService.login(loginDto);
-        return ResponseEntity.ok(authenticatedUser);
+    public ResponseEntity<JwtResponse> loginUser(@RequestBody LoginRequest request) {
+        return ResponseEntity.ok(userService.login(request));
         }
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteUser(@PathVariable Long id){
@@ -64,7 +78,7 @@ private final AuthenticationManager authenticationManager;
            return ResponseEntity.ok().build();
     }
 @PutMapping("/{id}")
-public ResponseEntity<Void> updateUser(@PathVariable Long id, @RequestBody UserRequest userRequest){
+public ResponseEntity<Void> updateUser(@PathVariable Long id, @RequestBody UserRequestDto userRequest){
         userService.updateUser(id,userRequest);
         return ResponseEntity.ok().build();
 }
