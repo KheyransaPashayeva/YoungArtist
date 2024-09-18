@@ -44,6 +44,7 @@ public class User implements UserDetails {
             joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "product_id")
     )
+
     private Set<Product> likedProducts = new HashSet<>();
 
     @Override

@@ -1,6 +1,7 @@
 package az.atl.youngartist.mapper;
 
 import az.atl.youngartist.dao.entity.Product;
+import az.atl.youngartist.model.dto.ProductDetailDto;
 import az.atl.youngartist.model.dto.ProductDto;
 import az.atl.youngartist.model.reguest.ProductRequest;
 import org.mapstruct.Mapper;
@@ -11,6 +12,7 @@ import org.mapstruct.ReportingPolicy;
         unmappedSourcePolicy = ReportingPolicy.IGNORE,
         unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface ProductMapper {
-        Product toEntity(ProductRequest cartRequest);
-        ProductDto toDto(Product bookEntity);
+        Product toEntity(ProductRequest productRequest);
+        ProductDto toDto(Product product);
+        ProductDetailDto toDetailDto(Product product);
 }

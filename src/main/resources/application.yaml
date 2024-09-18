@@ -1,12 +1,9 @@
 server:
-  port: 8086
+  port: 8090
   servlet:
     context-path: /young-artist-app
 
 spring:
-  liquibase:
-    change-log: classpath:db/changelog/changelog-master.yaml
-    enabled: true
   application:
     name: YoungArtist
   datasource:

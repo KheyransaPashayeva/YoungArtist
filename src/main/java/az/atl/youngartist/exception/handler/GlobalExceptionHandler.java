@@ -1,6 +1,6 @@
 package az.atl.youngartist.exception.handler;
 
-import az.atl.youngartist.exception.CartNotFoundException;
+import az.atl.youngartist.exception.ProductNotFoundException;
 import az.atl.youngartist.exception.UserNotFoundException;
 import az.atl.youngartist.model.dto.ErrorDto;
 import org.springframework.http.HttpStatus;
@@ -14,8 +14,8 @@ import java.time.LocalDateTime;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
     @ResponseStatus(HttpStatus.NOT_FOUND)
-    @ExceptionHandler(CartNotFoundException.class)
-    public ResponseEntity<ErrorDto> handleCustomerNotFound(CartNotFoundException ex) {
+    @ExceptionHandler(ProductNotFoundException.class)
+    public ResponseEntity<ErrorDto> handleProductNotFound(ProductNotFoundException ex) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
                 .body(new ErrorDto(404,
                         ex.getMessage(),
@@ -24,7 +24,7 @@ public class GlobalExceptionHandler {
 
     @ResponseStatus(HttpStatus.NOT_FOUND)
     @ExceptionHandler(UserNotFoundException.class)
-    public ResponseEntity<ErrorDto> handleCustomerNotFound(UserNotFoundException ex) {
+    public ResponseEntity<ErrorDto> handleUserNotFound(UserNotFoundException ex) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
                 .body(new ErrorDto(404,
                         ex.getMessage(),

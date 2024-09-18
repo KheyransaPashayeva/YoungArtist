@@ -1,5 +1,6 @@
 package az.atl.youngartist.service.impl;
 
+import az.atl.youngartist.dao.entity.User;
 import az.atl.youngartist.dao.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -15,6 +16,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+
         return userService.findByUsername(username).orElseThrow();
     }
 
