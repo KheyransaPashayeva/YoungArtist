@@ -35,7 +35,7 @@ public class SecurityConfig {
     @Bean //load username from database
     public UserDetailsService userDetailsService() {
         return username -> repository
-                .findByUsername(username)
+                .findByEmail(username)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found."));
     }
 
@@ -58,9 +58,12 @@ public class SecurityConfig {
             throws Exception {
             return http
                     .authorizeHttpRequests(authorization -> authorization
-                            .requestMatchers("/api/v1/users/**","/v3/api-docs/**","/swagger-ui/**","/api/v1/product/**").permitAll()
-                            .requestMatchers("/api/v1/auth").hasRole("ADMIN")
-                            .anyRequest().authenticated())
+                            .requestMatchers("/v3/api-docs/**","/swagger-ui/**").permitAll()
+                            .requestMatchers("/api/v1/product/**").permitAll()
+                            .requestMatchers("/api/v1/users/**").permitAll())
+                            //.requestMatchers("/api/v1/auth").hasRole("ADMIN")
+                            .authorizeHttpRequests(auth ->
+                                    auth.anyRequest().authenticated())
                     .addFilterBefore(authenticationFilter, UsernamePasswordAuthenticationFilter.class)
                     .authenticationProvider(authenticationProvider)
                     .sessionManagement(session -> session

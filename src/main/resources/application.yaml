@@ -10,7 +10,7 @@ spring:
     type: com.zaxxer.hikari.HikariDataSource
     url: jdbc:postgresql://localhost:5432/postgres
     username: postgres
-    password: postgres
+    password: mysecretpassword
     driver-class-name: org.postgresql.Driver
 
   jpa:
@@ -19,7 +19,7 @@ spring:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
     hibernate:
       ddl-auto: none
-    #    show-sql: true
+    show-sql: true
     properties:
       hibernate:
         format_sql: true
@@ -30,3 +30,6 @@ springdoc:
   swagger-ui:
     path: /swagger-ui
 
+logging:
+  level:
+    org.springframework.security: trace

@@ -27,14 +27,16 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         User user = userRepository.findByEmail(username)
                 .orElseThrow(() -> new NoSuchElementException("User with email " + username + " not found"));
-        if (user != null) {
-            // If getUserRole() is an enum, convert it to a String
-            List<SimpleGrantedAuthority> authorities = new ArrayList<>();
-            authorities.add(new SimpleGrantedAuthority("ROLE_" + user.getUserRole().name())); // Assuming user role is an Enum
 
-            return userRepository.findByUsername(username).orElseThrow();
-        }
-        return null;
+        return user;
+       //if (user != null) {
+       //    // If getUserRole() is an enum, convert it to a String
+       //    List<SimpleGrantedAuthority> authorities = new ArrayList<>();
+       //    authorities.add(new SimpleGrantedAuthority("ROLE_" + user.getUserRole().name())); // Assuming user role is an Enum
+
+       //    return userRepository.findByUsername(username).orElseThrow();
+       //}
+       //return null;
     }
 
 }

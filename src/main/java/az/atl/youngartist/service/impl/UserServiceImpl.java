@@ -55,14 +55,14 @@ public class UserServiceImpl implements UserService {
                 .username(userRequest.getUsername())
                 .email(userRequest.getEmail())
                 .password(encoder.encode(userRequest.getPassword()))
-                .userRole(userRequest.getUserRole())
+                .userRole(Role.USER)
                 .build();
-              if (userRequest.getUserRole() != null) {
-                 user.setUserRole(userRequest.getUserRole());
-        } else {
-            user.setUserRole(Role.USER); // Default to USER if no role is selected
-        }
-        user.setUserRole(Role.USER);
+              //if (userRequest.getUserRole() != null) {
+              //   user.setUserRole(userRequest.getUserRole());
+       // } else {
+       //     user.setUserRole(Role.USER); // Default to USER if no role is selected
+       // }
+        //user.setUserRole(Role.USER);
         userRepository.save(user);
 
         var jwtToken = jwtService.generateToken(user);

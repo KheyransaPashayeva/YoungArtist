@@ -32,7 +32,7 @@ public class ProductController {
         return ResponseEntity.ok(productService.findAllProduct());
     }
 
-    @PostMapping()
+    @PostMapping
     public ResponseEntity<Void> create(@RequestBody ProductRequest productRequest){
         productService.createPproduct(productRequest);
         return ResponseEntity.status(HttpStatus.CREATED).build();
