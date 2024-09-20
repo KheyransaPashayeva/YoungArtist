@@ -21,9 +21,7 @@ public interface JwtService {
     String generateToken(
             UserDetails userDetails
     );
-    String generateToken(
-            String email
-    );
+
 
     boolean isTokenExpired(String token);
 

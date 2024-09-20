@@ -20,6 +20,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
 import java.util.Set;
 
 @Service
@@ -32,9 +33,9 @@ public class UserServiceImpl implements UserService {
     private final AuthenticationManager authManager;
 
     @Override
-    public User findByUserName(String username) {
-        return userRepository.findByUsername(username)
-                .orElseThrow(()->new UserNotFoundException("user not found"));
+    public Optional<User> findByUserName(String username) {
+        var user = userRepository.findByUsername(username).orElseThrow();
+        return Optional.of(user);
     }
 
     @Override
@@ -72,14 +73,14 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User updateUserRole(Long id, Role role) {
+    public void updateUserRole(Long id, Role role) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new UserNotFoundException("User not found"));
 
         // Update the role
         user.setUserRole(role);
 
-        return userRepository.save(user);
+         userRepository.save(user);
 
     }
 
@@ -112,9 +113,9 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDto findByUserId(Long id) {
-      return   userRepository.findById(id)
-                .map(userMapper::toDto)
-                .orElseThrow(() -> new UserNotFoundException("User not found"));
+        User user =userRepository.findById(id).orElseThrow(() -> new UserNotFoundException("User not found"));
+      return userMapper.toDto(user);
+
 
     }
 

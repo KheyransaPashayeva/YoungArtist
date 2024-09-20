@@ -15,11 +15,13 @@ import az.atl.youngartist.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -27,32 +29,19 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/users")
 public class UserController {
-    private final JwtService jwtService;
-   private final AuthenticationManager authenticationManager;
     private final UserService userService;
 
-    @PostMapping("/auth")
-    public String generateToken(@RequestBody LoginRequest request) throws Exception{
-        try {
-            authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(request.getEmail(),request.getPassword())
-            );
-        }catch (Exception exception){
-            throw new Exception("Invalid user email or password");
-        }
-        return jwtService.generateToken(request.getEmail());
-    }
 
-    // Find user by username
+    @PreAuthorize("hasRole('USER')") // Find user by username
     @GetMapping("/{username}")
-    public ResponseEntity<User> findByUserName(@PathVariable String username) {
-        User user = userService.findByUserName(username);
+    public ResponseEntity<Optional<User>> findByUserName(@PathVariable String username) {
+        Optional<User> user = userService.findByUserName(username);
         return ResponseEntity.ok(user);
     }
-
+    @PreAuthorize("hasRole('USER')")
     @GetMapping("/{id}")
-    public ResponseEntity<UserDto> findById(@PathVariable Long id) {
-        return ResponseEntity.status(HttpStatus.OK).body(userService.findByUserId(id));
+    public ResponseEntity<UserDto> getById(@PathVariable("id") Long id) {
+        return ResponseEntity.ok(userService.findByUserId(id));
     }
 
     @PostMapping("/register")
@@ -62,9 +51,9 @@ public class UserController {
 
     // Update user role
     @PostMapping("/updateRole")
-    public ResponseEntity<User> updateUserRole(@RequestParam Long id, @RequestParam Role role) {
-        User updatedUser = userService.updateUserRole(id, role);
-        return ResponseEntity.ok(updatedUser);
+    public ResponseEntity<Void> updateUserRole(@RequestParam Long id, @RequestParam Role role) {
+        userService.updateUserRole(id, role);
+        return ResponseEntity.ok().build();
     }
 
     // New login endpoint

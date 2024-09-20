@@ -12,5 +12,5 @@ import org.mapstruct.ReportingPolicy;
         unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface UserMapper {
     User toEntity(UserRequest userRequest);
-    UserDto toDto(User userentity);
+    UserDto toDto(User user);
 }

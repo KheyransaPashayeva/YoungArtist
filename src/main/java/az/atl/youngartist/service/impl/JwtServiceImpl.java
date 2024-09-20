@@ -67,12 +67,6 @@ public class JwtServiceImpl implements JwtService {
     }
 
 
-    @Override
-    public String generateToken(String email) {
-        return generateToken(email);
-    }
-
-
 
     private SecretKey getSignInKey() {
         byte[] keyBytes = Decoders.BASE64.decode(SECRET_KEY);

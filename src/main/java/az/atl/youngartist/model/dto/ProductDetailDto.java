@@ -16,17 +16,11 @@ import java.util.Set;
 @AllArgsConstructor
 @NoArgsConstructor
 public class ProductDetailDto {
-    @Id
     private Long id;
-    @Column(name = "product_name",nullable = false)
     private String name;
-    @Column(name = "product_price",nullable = false)
     private BigDecimal price;
-    @Column(name = "author",nullable = false)
     private String author;
-    @Column(name = "imageUrl",nullable = false)
     private String imageUrl;
-    @Column(name = "likes",nullable = false)
     private int likes;
 
 }

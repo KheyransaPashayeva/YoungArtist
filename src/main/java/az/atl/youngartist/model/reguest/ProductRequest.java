@@ -14,7 +14,6 @@ import java.util.Set;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ProductRequest {
-
     private String name;
     private BigDecimal price;
     private String author;
