@@ -26,7 +26,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 @RestController
-@CrossOrigin
+@CrossOrigin(origins = "https://youngartist-production.up.railway.app/")
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/users")
 public class UserController {
