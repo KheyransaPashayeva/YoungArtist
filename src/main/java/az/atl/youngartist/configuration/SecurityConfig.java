@@ -70,6 +70,7 @@ public class SecurityConfig {
                             .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                             .maximumSessions(1))
                     .csrf(AbstractHttpConfigurer::disable)
+                    .cors(AbstractHttpConfigurer::disable)
                     .build();
 
     }
