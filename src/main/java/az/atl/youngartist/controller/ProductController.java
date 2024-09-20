@@ -16,6 +16,7 @@ import java.util.List;
 
 @RestController
 @AllArgsConstructor
+@CrossOrigin
 @Validated
 @RequestMapping("/api/v1/product")
 @SecurityRequirement(name = "bearerAuth")

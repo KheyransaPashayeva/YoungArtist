@@ -8,9 +8,9 @@ spring:
     name: YoungArtist
   datasource:
     type: com.zaxxer.hikari.HikariDataSource
-    url: jdbc:postgresql://localhost:5432/postgres
+    url: jdbc:postgresql://postgres.railway.internal:5432/railway
     username: postgres
-    password: postgres
+    password: UDHdQtwHrWlRVJfMJXxAjSFfIcTnlmwA
     driver-class-name: org.postgresql.Driver
 
   jpa:
