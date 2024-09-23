@@ -16,7 +16,7 @@ import java.util.List;
 
 @RestController
 @AllArgsConstructor
-@CrossOrigin(origins = "https://youngartist-production.up.railway.app/")
+@CrossOrigin(origins = "*")
 @Validated
 @RequestMapping("/api/v1/product")
 @SecurityRequirement(name = "bearerAuth")

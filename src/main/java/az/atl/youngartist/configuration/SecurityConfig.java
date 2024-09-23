@@ -22,15 +22,19 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.springframework.web.servlet.config.annotation.EnableWebMvc;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import java.util.Arrays;
 import java.util.List;
 
 @Configuration
 @EnableWebSecurity
+@EnableWebMvc
 @RequiredArgsConstructor
-public class SecurityConfig {
+public class SecurityConfig implements WebMvcConfigurer {
     private final UserRepository repository;
+    private final CorsConfig corsConfig;
 
 
     @Bean
@@ -63,7 +67,6 @@ public class SecurityConfig {
                                            AuthenticationProvider authenticationProvider)
             throws Exception {
             return http
-                    .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                     .authorizeHttpRequests(authorization -> authorization
                             .requestMatchers("/v3/api-docs/**","/swagger-ui/**").permitAll()
                             .requestMatchers("/api/v1/product/**").permitAll()
@@ -76,22 +79,23 @@ public class SecurityConfig {
                     .sessionManagement(session -> session
                             .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                             .maximumSessions(1))
+
                     .csrf(AbstractHttpConfigurer::disable)
                     .build();
 
     }
-    @Bean
-    public CorsConfigurationSource corsConfigurationSource() {
-        CorsConfiguration configuration = new CorsConfiguration();
-        // Allow all origins for testing purposes
-        configuration.addAllowedOriginPattern("*"); // Allows all origins
-        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-        configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type"));
-        configuration.setExposedHeaders(Arrays.asList("Authorization"));
-        configuration.setAllowCredentials(true);
-
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", configuration);
-        return source;
-    }
+//    @Bean
+//    public CorsConfigurationSource corsConfigurationSource() {
+//        CorsConfiguration configuration = new CorsConfiguration();
+//        // Allow all origins for testing purposes
+//        configuration.addAllowedOriginPattern("*"); // Allows all origins
+//        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+//        configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type"));
+//        configuration.setExposedHeaders(Arrays.asList("Authorization"));
+//        configuration.setAllowCredentials(true);
+//
+//        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+//        source.registerCorsConfiguration("/**", configuration);
+//        return source;
+//    }
 }
