@@ -1,0 +1,25 @@
+services:
+
+  postgres2:
+    image: postgres:latest
+    container_name: postgres2
+    environment:
+      - HOST=dpg-crvcogbtq21c73c842v0-a.oregon-postgres.render.com
+      - POSTGRES_DB=postgressql_7fm2
+      - POSTGRES_USER=postgress
+      - POSTGRES_PASSWORD=yO8di6thMpLhxLMnLEBfF0YQBxCerMNO
+    ports:
+      - "5432:5432"
+
+  young-artist:
+    build:
+      context: .
+    image: gunelhasanova/youngartist:v1
+
+    container_name: young-artist
+    environment:
+      - HOST=postgres2
+    ports:
+      - "8081:8081"
+    depends_on:
+      - postgres2

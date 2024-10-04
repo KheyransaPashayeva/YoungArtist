@@ -36,7 +36,7 @@ public class User implements UserDetails {
     private String password;
 
     @Enumerated(value = EnumType.STRING)
-    private Role userRole = Role.USER;
+    private Role userRole;
 
     @ManyToMany
     @JoinTable(
@@ -45,7 +45,7 @@ public class User implements UserDetails {
             inverseJoinColumns = @JoinColumn(name = "product_id")
     )
 
-    private Set<Product> likedProducts = new HashSet<>();
+    private Set<Product> likedProducts;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

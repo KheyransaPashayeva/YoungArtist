@@ -1,5 +1,5 @@
 server:
-  port: 8080
+  port: 8081
   servlet:
     context-path: /young-artist-app
 
@@ -8,9 +8,9 @@ spring:
     name: YoungArtist
   datasource:
     type: com.zaxxer.hikari.HikariDataSource
-    url: jdbc:postgresql://postgres.railway.internal:5432/railway
-    username: postgres
-    password: UDHdQtwHrWlRVJfMJXxAjSFfIcTnlmwA
+    url: jdbc:postgresql://${HOST:dpg-crvcogbtq21c73c842v0-a.oregon-postgres.render.com}:5432/${POSTGRES_DB:postgressql_7fm2}
+    username: ${DB_USERNAME:postgress}
+    password: ${DB_PASSWORD:yO8di6thMpLhxLMnLEBfF0YQBxCerMNO}
     driver-class-name: org.postgresql.Driver
 
   jpa:
